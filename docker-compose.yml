@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  nmap:
+    # 軽量で信頼性の高いNmapイメージを使用
+    image: instrumentisto/nmap:latest
+    
+    # ホストOSのネットワークスタックを直接使用（正確なスキャンに必須）
+    network_mode: "host"
+    
+    # スキャン結果をホスト側のディレクトリに保存
+    volumes:
+      - ./results:/results
+    
+    # スキャン対象を環境変数で柔軟に変更可能に
+    environment:
+      - TARGET=${TARGET:-127.0.0.1}
+    
+    # 実行コマンドの解説:
+    # -p- : 全ポート（1-65535）をスキャン
+    # -sV : サービス名とバージョンの特定を試行
+    # -T4 : スキャンスピードを高速化（1-5の4段階目）
+    # -oN : 結果を通常のテキスト形式でファイル出力
+    entrypoint: 
+      - /bin/sh
+      - -c
+      - |
+        nmap -p- -sV -T4 -oN /results/scan_res.txt $$TARGET
